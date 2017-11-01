@@ -1,60 +1,47 @@
 # Pandas-query module
 ```python
 import pandas as pd
+from pandas_query import _
 
 really_long_name_dataframe = pd.DataFrame({'ints': range(10)})
+```
+
+## Assigning new columns
+```
+# Instead of 
 really_long_name_dataframe['mul10'] = really_long_name_dataframe['ints'] * 10
 really_long_name_dataframe['squares'] = really_long_name_dataframe['ints'] ** 2
 
-really_long_name_dataframe
+# Write shorter
+really_long_name_dataframe['mul10'] = _['ints'] * 10
+really_long_name_dataframe['squares'] = _['ints'] ** 2
 ```
-```
-   ints  mul10  squares
-0     0      0        0
-1     1     10        1
-2     2     20        4
-3     3     30        9
-4     4     40       16
-5     5     50       25
-6     6     60       36
-7     7     70       49
-8     8     80       64
-9     9     90       81
-```
+
+## Indexing
 
 ```python
-from pandas_query import _
-
-really_long_name_dataframe[
-    _['ints'].between(3, 6) & 
-    (_['mul10'] != 40)
+# Instead of
+subset = really_long_name_dataframe[
+    really_long_name_dataframe[['ints'].between(3, 6) 
+    & (really_long_name_dataframe[['mul10'] != 40)
 ]
-```
-```
-   ints  mul10  squares
-3     3     30        9
-5     5     50       25
-6     6     60       36
+
+# Write shorter
+subset = really_long_name_dataframe[
+    _['ints'].between(3, 6) 
+    & (_['mul10'] != 40)
+]
 
 ```
-
+## Evaluating expressions
 ```python
-really_long_name_dataframe['cubes'] = really_long_name_dataframe(_['squares'] * _['ints'])
-really_long_name_dataframe
-```
+# Instead of
+cubes = (
+    really_long_name_dataframe['ints'] * really_long_name_dataframe['squares'] 
+)
 
+# Write shorter
+cubes = (
+    really_long_name_dataframe(_['ints'] * _['squares']) 
+)
 ```
- ints  mul10  squares  cubes
-0     0      0        0      0
-1     1     10        1      1
-2     2     20        4      8
-3     3     30        9     27
-4     4     40       16     64
-5     5     50       25    125
-6     6     60       36    216
-7     7     70       49    343
-8     8     80       64    512
-9     9     90       81    729
-```
-
-See [Example](./example.ipynb)
