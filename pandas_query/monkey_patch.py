@@ -10,20 +10,20 @@ def patch_pandas():
     if _patched:
         print('Pandas already patched')
         return
-    pd.DataFrame.__call__ = lambda self, op: op.apply_op(self)
+    pd.DataFrame.__call__ = lambda self, op: op.func(self)
 
     last_get_item = pd.DataFrame.__getitem__
 
     def apply_if_op(df, op):
         if isinstance(op, Operator):
-            return op.apply_op(df)
+            return op.func(df)
         return op
 
     def op_get_item(self, op):
-        return last_get_item(self, apply_if_op(self, op))
+        indexer = apply_if_op(self, op)
+        return last_get_item(self, indexer)
 
     pd.DataFrame.__getitem__ = op_get_item
-
 
     last_indexer_get_item = _LocIndexer.__getitem__
 
