@@ -1,51 +1,72 @@
 import pandas as pd
+from sys import stderr
 
-from pandas_query.operator import Operator
+from pandas_query.operator import Operator, apply_op, apply_op_dict, apply_op_list
 from pandas.core.indexing import _LocIndexer
 _patched = False
+
+
+def patch_method(pandas_object, method_name):
+    def wrapper(func):
+        orig_method = None
+        if hasattr(pandas_object, method_name):
+            orig_method = getattr(pandas_object, method_name)
+        def new_method(instance, *args, **kwargs):
+            return func(orig_method, instance, *args, **kwargs)
+        setattr(pandas_object, method_name, new_method)
+    return wrapper
 
 
 def patch_pandas():
     global _patched
     if _patched:
-        print('Pandas already patched')
+        stderr.write('Pandas already patched\n')
         return
-    pd.DataFrame.__call__ = lambda self, op: op.func(self)
 
-    last_get_item = pd.DataFrame.__getitem__
+    @patch_method(pd.DataFrame, '__call__')
+    def df_call(orig_method, instance, op):
+        return op._func(instance)
 
-    def apply_if_op(df, op):
-        if isinstance(op, Operator):
-            return op.func(df)
-        return op
+    @patch_method(pd.DataFrame, '__getitem__')
+    def df_getitem(orig_method, instance, op):
+        return orig_method(instance, apply_op(instance, op))
 
-    def op_get_item(self, op):
-        indexer = apply_if_op(self, op)
-        return last_get_item(self, indexer)
+    @patch_method(pd.DataFrame, '__setitem__')
+    def df_set_item(orig_method, instance, name, op):
+        value = apply_op(instance, op)
+        return orig_method(instance, name, value)
 
-    pd.DataFrame.__getitem__ = op_get_item
-
-    last_set_item = pd.DataFrame.__setitem__
-
-    def op_set_item(self, name, op):
-        value = apply_if_op(self, op)
-        return last_set_item(self, name, value)
-    pd.DataFrame.__setitem__ = op_set_item
-
-    last_indexer_get_item = _LocIndexer.__getitem__
-
-    def op_log_indexer_get_item(self, key):
-        df = self.obj
+    @patch_method(_LocIndexer, '__getitem__')
+    def loc_indexer_getitem(orig_method, instance, key):
+        df = instance.obj
         if isinstance(key, tuple):
             k1, k2 = key
-            k1 = apply_if_op(df, k1)
-            k2 = apply_if_op(df, k2)
-            return last_indexer_get_item(self, (k1, k2))
+            key = (apply_op(df, k1), apply_op(df, k2))
         else:
-            key = apply_if_op(df, key)
-            return last_indexer_get_item(self, key)
+            key = apply_op(df, key)
+        return orig_method(instance, key)
 
-    _LocIndexer.__getitem__ = op_log_indexer_get_item
+    @patch_method(pd.DataFrame, 'assign')
+    def df_assign(orig_method, instance, **kwargs):
+        kwargs = apply_op_dict(instance, kwargs)
+        return orig_method(instance, **kwargs)
+
+    @patch_method(pd.DataFrame, 'set_index')
+    def df_set_index(orig_method, instance, keys, *args, **kwargs):
+        if isinstance(keys, list):
+            keys = apply_op_list(instance, keys)
+        else:
+            keys = apply_op(instance, keys)
+
+        return orig_method(instance, keys, *args, **kwargs)
+
+    @patch_method(pd.DataFrame, 'apply')
+    def df_apply(orig_method, instance, func_op, *args, **kwargs):
+        def wrapper(target):
+            return apply_op(target, func_op)
+
+        return orig_method(instance, wrapper, *args, **kwargs)
+
     _patched = True
 
 patch_pandas()
