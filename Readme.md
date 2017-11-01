@@ -21,7 +21,7 @@ really_long_name_dataframe
 8     8     80       64
 9     9     90       81
 ```
-
+## Quering
 ```python
 from pandas_query import _
 
@@ -38,6 +38,7 @@ really_long_name_dataframe[
 
 ```
 
+## Calculating expressions
 ```python
 really_long_name_dataframe['cubes'] = really_long_name_dataframe(_['squares'] * _['ints'])
 really_long_name_dataframe
