@@ -1,8 +1,9 @@
 import pandas as pd
+from pandas.core.indexing import _LocIndexer
 from sys import stderr
 
-from pandas_query.operator import Operator, apply_op, apply_op_dict, apply_op_list
-from pandas.core.indexing import _LocIndexer
+from pandas_query.operator import apply_op, apply_op_dict, apply_op_list
+
 _patched = False
 
 
@@ -68,5 +69,3 @@ def patch_pandas():
         return orig_method(instance, wrapper, *args, **kwargs)
 
     _patched = True
-
-patch_pandas()
