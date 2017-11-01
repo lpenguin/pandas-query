@@ -25,6 +25,13 @@ def patch_pandas():
 
     pd.DataFrame.__getitem__ = op_get_item
 
+    last_set_item = pd.DataFrame.__setitem__
+
+    def op_set_item(self, name, op):
+        value = apply_if_op(self, op)
+        return last_set_item(self, name, value)
+    pd.DataFrame.__setitem__ = op_set_item
+
     last_indexer_get_item = _LocIndexer.__getitem__
 
     def op_log_indexer_get_item(self, key):
