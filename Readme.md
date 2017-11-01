@@ -7,7 +7,7 @@ really_long_name_dataframe = pd.DataFrame({'ints': range(10)})
 ```
 
 ## Assigning new columns
-```
+```python
 # Instead of 
 really_long_name_dataframe['mul10'] = really_long_name_dataframe['ints'] * 10
 really_long_name_dataframe['squares'] = really_long_name_dataframe['ints'] ** 2
