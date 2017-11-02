@@ -41,8 +41,7 @@ def patch_pandas():
     def loc_indexer_getitem(orig_method, instance, key):
         df = instance.obj
         if isinstance(key, tuple):
-            k1, k2 = key
-            key = (apply_op(df, k1), apply_op(df, k2))
+            key = tuple(apply_op_list(df, key))
         else:
             key = apply_op(df, key)
         return orig_method(instance, key)
