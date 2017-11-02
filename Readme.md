@@ -17,7 +17,7 @@ really_long_name_dataframe['mul10'] = _['ints'] * 10
 really_long_name_dataframe['squares'] = _['ints'] ** 2
 ```
 
-## Indexing
+## Selecting data
 
 ```python
 # Instead of
