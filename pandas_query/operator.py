@@ -116,16 +116,12 @@ class Operator(object):
         return Operator(partial_op(self, ga, item), '%s.%s' % (self, item))
 
 
-def F(func, *args):
-    func_args = args
-
+def F(func, *args, **kwargs):
     def wrapper(target):
-        args = [
-            apply_op(target, arg)
-            for arg in func_args
-        ]
-        return func(*args)
-    return Operator(wrapper, '<func>(%s)' % (', '.join(map(str, args,))))
+        loc_args = apply_op_list(target, args)
+        loc_kwargs = apply_op_dict(target, kwargs)
+        return func(*loc_args, **loc_kwargs)
+    return Operator(wrapper, '<func>(%s, %s)' % (', '.join(map(str, args,)), '**kwargs'))
 
 Op = Operator
 _ = Operator(identity, '_')
