@@ -2,11 +2,11 @@ import pandas as pd
 import numpy as np
 from pandas_query import _
 
-df = pd.DataFrame({'ints': np.random.randint(1, 10, 200)})
-df['squares'] = _['ints'] ** 2  # Column assignment, .__setitem__() function
+some_dataframe = pd.DataFrame({'ints': np.random.randint(1, 10, 200)})
+some_dataframe['squares'] = _['ints'] ** 2  # Column assignment, .__setitem__() function
 
 print(
-    df
+    some_dataframe
     .groupby('squares')
     .count()
     .assign(sqrt=_.index.map(np.sqrt).astype(int))  # .assign() function
