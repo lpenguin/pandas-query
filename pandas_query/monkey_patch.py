@@ -8,7 +8,7 @@ _patched = False
 
 
 def patch_method(pandas_object, method_name):
-    print('Patching method: {}.{}.{}'.format(pandas_object.__module__, pandas_object.__name__, method_name))
+    stderr.write('Patching method: {}.{}.{}\n'.format(pandas_object.__module__, pandas_object.__name__, method_name))
 
     def wrapper(func):
         orig_method = None
