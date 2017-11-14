@@ -8,6 +8,8 @@ _patched = False
 
 
 def patch_method(pandas_object, method_name):
+    print('Patching method: {}.{}'.format(pandas_object, method_name))
+
     def wrapper(func):
         orig_method = None
         if hasattr(pandas_object, method_name):
